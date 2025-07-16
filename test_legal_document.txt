@@ -1,0 +1,33 @@
+NON-DISCLOSURE AGREEMENT
+
+This Non-Disclosure Agreement ("Agreement") is entered into on [Date] by and between Company A ("Disclosing Party") and Company B ("Receiving Party").
+
+1. CONFIDENTIAL INFORMATION
+For purposes of this Agreement, "Confidential Information" means any and all non-public, proprietary or confidential information disclosed by the Disclosing Party to the Receiving Party, including but not limited to technical data, trade secrets, know-how, research, product plans, products, services, customers, customer lists, markets, software, developments, inventions, processes, formulas, technology, designs, drawings, engineering, hardware configuration information, marketing, finances, or other business information.
+
+2. OBLIGATIONS
+The Receiving Party agrees to:
+a) Hold all Confidential Information in strict confidence;
+b) Not disclose Confidential Information to any third parties without prior written consent;
+c) Use Confidential Information solely for the purpose of evaluating potential business opportunities;
+d) Take reasonable precautions to protect the confidentiality of such information.
+
+3. TERMINATION
+This Agreement shall remain in effect for a period of five (5) years from the date first written above, unless terminated earlier by mutual written agreement of the parties. Upon termination, all Confidential Information shall be returned or destroyed.
+
+4. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of laws principles.
+
+5. DISPUTE RESOLUTION
+Any disputes arising out of or relating to this Agreement shall be resolved through binding arbitration in accordance with the rules of the American Arbitration Association.
+
+6. LIABILITY
+In no event shall either party be liable for any indirect, incidental, special, consequential or punitive damages, including lost profits, arising out of or relating to this Agreement.
+
+7. FORCE MAJEURE
+Neither party shall be liable for any failure or delay in performance under this Agreement which is due to fire, flood, earthquake, or other acts of God, war, terrorism, or other causes beyond the reasonable control of such party.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.
+
+Company A: ________________________
+Company B: ________________________

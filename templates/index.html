@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalEase by Sapphire - Legal Document Summarizer</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/static/images/legalease_logo.jpg" alt="LegalEase" height="40" class="me-2" style="border-radius: 0.375rem;">
+                <span>LegalEase</span>
+                <small class="text-light opacity-75 ms-2">by Sapphire</small>
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link active" href="{{ url_for('index') }}">
+                    <i class="fas fa-upload me-1"></i>Upload Document
+                </a>
+                <a class="nav-link" href="{{ url_for('document_history') }}">
+                    <i class="fas fa-history me-1"></i>History
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <img src="/static/images/legalease_logo.jpg" alt="LegalEase" height="80" class="mb-3" style="border-radius: 0.5rem;">
+                            <h2 class="card-title">
+                                <i class="fas fa-file-text me-2"></i>Upload Legal Document
+                            </h2>
+                            <p class="text-muted">
+                                Upload your legal document (PDF, DOCX, or TXT) and get an AI-powered summary in plain English
+                            </p>
+                        </div>
+
+                        <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+                            <div class="mb-4">
+                                <label for="file" class="form-label">Select Document or Take Photo</label>
+                                
+                                <!-- Upload Method Selection -->
+                                <div class="btn-group mb-3 w-100" role="group">
+                                    <input type="radio" class="btn-check" name="uploadMethod" id="fileUpload" checked>
+                                    <label class="btn btn-outline-primary" for="fileUpload">
+                                        <i class="fas fa-file-upload me-2"></i>Upload File
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="uploadMethod" id="cameraCapture">
+                                    <label class="btn btn-outline-primary" for="cameraCapture">
+                                        <i class="fas fa-camera me-2"></i>Take Photo
+                                    </label>
+                                </div>
+
+                                <!-- File Upload Section -->
+                                <div id="fileUploadSection">
+                                    <div class="file-upload-area" id="fileUploadArea">
+                                        <div class="file-upload-content">
+                                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                                            <p class="mb-2">Drag and drop your file here or click to browse</p>
+                                            <p class="text-muted small">Supported formats: PDF, DOCX, TXT (Max 16MB)</p>
+                                        </div>
+                                        <input type="file" class="form-control" id="file" name="file" accept=".pdf,.docx,.txt">
+                                    </div>
+                                </div>
+
+                                <!-- Camera Capture Section -->
+                                <div id="cameraSection" style="display: none;">
+                                    <div class="camera-container">
+                                        <video id="cameraVideo" width="100%" height="300" autoplay style="display: none; border-radius: 0.375rem;"></video>
+                                        <canvas id="captureCanvas" width="800" height="600" style="display: none;"></canvas>
+                                        
+                                        <div id="cameraControls" class="text-center mt-3">
+                                            <button type="button" class="btn btn-primary me-2" id="startCamera">
+                                                <i class="fas fa-video me-2"></i>Start Camera
+                                            </button>
+                                            <button type="button" class="btn btn-success me-2" id="capturePhoto" style="display: none;">
+                                                <i class="fas fa-camera me-2"></i>Capture Photo
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="retakePhoto" style="display: none;">
+                                                <i class="fas fa-redo me-2"></i>Retake
+                                            </button>
+                                        </div>
+
+                                        <div id="capturedImagePreview" class="mt-3" style="display: none;">
+                                            <img id="previewImage" class="img-fluid rounded" style="max-height: 300px;">
+                                            <input type="hidden" id="capturedImageData" name="captured_image">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="fileInfo" class="mt-3" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-file me-2"></i>
+                                        <span id="fileName"></span>
+                                        <span id="fileSize" class="text-muted"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <span id="submitText">
+                                        <i class="fas fa-magic me-2"></i>Analyze Document
+                                    </span>
+                                    <span id="loadingText" style="display: none;">
+                                        <i class="fas fa-spinner fa-spin me-2"></i>Processing...
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Processing Progress -->
+                        <div id="progressSection" class="mt-4" style="display: none;">
+                            <div class="progress mb-2">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center text-muted">
+                                <span id="progressText">Extracting text from document...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Results -->
+        {% if success and summary %}
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-file-alt me-2"></i>Document Summary
+                        </h3>
+                        <p class="text-muted mb-0">
+                            File: {{ filename }}
+                            {% if document_id and not is_historical %}
+                                <span class="badge bg-success ms-2">
+                                    <i class="fas fa-save me-1"></i>Saved to Database
+                                </span>
+                            {% endif %}
+                            {% if is_historical %}
+                                <span class="badge bg-info ms-2">
+                                    <i class="fas fa-history me-1"></i>Historical Document
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle me-2"></i>Summary</h5>
+                            <p class="mb-0">{{ summary }}</p>
+                        </div>
+
+                        {% if key_clauses %}
+                        <h5 class="mt-4"><i class="fas fa-key me-2"></i>Key Clauses</h5>
+                        <div class="row">
+                            {% for clause in key_clauses %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-secondary">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-primary">{{ clause.type }}</h6>
+                                        <p class="card-text small text-muted">{{ clause.content[:200] }}{% if clause.content|length > 200 %}...{% endif %}</p>
+                                        {% if clause.explanation %}
+                                        <p class="card-text">{{ clause.explanation }}</p>
+                                        {% endif %}
+                                        <button class="btn btn-sm btn-outline-primary explain-btn" 
+                                                data-clause="{{ clause.content }}" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#explainModal">
+                                            <i class="fas fa-question-circle me-1"></i>Explain This
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Explain Modal -->
+    <div class="modal fade" id="explainModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Clause Explanation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="explanationContent">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p class="mt-2">Getting explanation...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <img src="/static/images/legalease_logo.jpg" alt="LegalEase" height="50" class="me-3" style="border-radius: 0.375rem;">
+                        <div>
+                            <h6 class="mb-0">LegalEase</h6>
+                            <small class="text-muted">Creative Legal Document Summarizer</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mt-2">
+                        <img src="/static/images/sapphire_icon.png" alt="Sapphire" height="24" class="me-2">
+                        <small class="text-muted">Developed by Sapphire</small>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        © 2025 Sapphire. All rights reserved. | 
+                        <a href="#" class="text-light text-decoration-none">Privacy Policy</a> | 
+                        <a href="#" class="text-light text-decoration-none">Terms of Service</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
