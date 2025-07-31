@@ -4,3 +4,4 @@ torch
 pymupdf
 python-docx
 gunicorn
+sumy
