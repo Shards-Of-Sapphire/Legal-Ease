@@ -301,3 +301,15 @@ def internal_error(e):
     logging.error(f"Internal server error: {str(e)}")
     flash('An internal server error occurred. Please try again.', 'error')
     return redirect(url_for('index'))
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/disclaimer')
+def disclaimer():
+    return render_template('disclaimer.html')
