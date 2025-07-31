@@ -1,7 +1,0 @@
-flask
-transformers
-torch
-pymupdf
-python-docx
-gunicorn
-sumy
