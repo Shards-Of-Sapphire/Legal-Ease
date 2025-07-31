@@ -6,6 +6,7 @@ transformers
 torch
 pymupdf
 python-docx
+sumy
 # Optional below - uncomment if used
 # pytesseract
 # Pillow
