@@ -1,6 +1,13 @@
 flask
+Flask-SQLAlchemy
+Werkzeug
+gunicorn
 transformers
 torch
 pymupdf
 python-docx
-gunicorn
+# Optional below - uncomment if used
+# pytesseract
+# Pillow
+# PyPDF2
+# psycopg2-binary
