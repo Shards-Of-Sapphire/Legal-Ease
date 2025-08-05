@@ -55,7 +55,7 @@ python main.py
 ## 🤝 Built by
 Sapphire – A student-led team from Muffakham Jah College of Engineering and Technology
 
-Lead Developer: Shaik Zayed Saleem
+Co-Developers: Shaik Zayed Saleem & Roushna Khatoon
 
 📧 Contact: shardsofsapphire.org@gmail.com
 📸 Instagram: @shardsofsapphire
