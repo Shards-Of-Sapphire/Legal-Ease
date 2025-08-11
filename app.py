@@ -18,8 +18,19 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
-# Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///history.db")  # fallback for local/demo)
+# Get DATABASE_URL from environment
+db_url = os.environ.get("DATABASE_URL")
+
+# Fix old postgres:// format to postgresql:// for SQLAlchemy
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Fallback to SQLite if DATABASE_URL is not set
+if not db_url:
+    db_url = "sqlite:///history.db"
+
+# Apply configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
