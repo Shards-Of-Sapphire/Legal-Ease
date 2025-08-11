@@ -76,6 +76,9 @@ def log_action(action, status, ip_address, error_message=None, document_id=None)
         logging.error(f"Failed to log action: {str(e)}")
 
 @app.route('/')
+def home():
+    return "LegalEase is running!"
+
 def index():
     """Main page with file upload interface"""
     return render_template('index.html')
