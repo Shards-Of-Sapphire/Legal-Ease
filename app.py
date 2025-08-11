@@ -18,18 +18,19 @@ class Base(DeclarativeBase):
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
-# Get DATABASE_URL from environment
-db_url = os.environ.get("DATABASE_URL")
 
-# Fix old postgres:// format to postgresql:// for SQLAlchemy
-if db_url and db_url.startswith("postgres://"):
+# Get DATABASE_URL from environment
+db_url = os.environ.get("DATABASE_URL", "").strip()
+
+# Fix Render's old postgres:// format for SQLAlchemy
+if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Fallback to SQLite if DATABASE_URL is not set
+# If no DB URL is set, default to SQLite (works locally & first deploy)
 if not db_url:
     db_url = "sqlite:///history.db"
 
-# Apply configuration
+# Apply DB config
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -37,10 +38,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Initialize database
+# Init DB
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
-
 # Configuration
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
