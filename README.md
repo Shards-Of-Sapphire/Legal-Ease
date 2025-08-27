@@ -58,7 +58,7 @@ Sapphire – A student-led team from Muffakham Jah College of Engineering and Te
 Co-Developers: Shaik Zayed Saleem & Roushna Khatoon
 
 📧 Contact: shardsofsapphire.org@gmail.com
-📸 Instagram: @shardsofsapphire
+📸 Instagram: @sapphire.official.ig
 
 ---
 
