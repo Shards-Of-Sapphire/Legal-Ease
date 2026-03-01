@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
 
             // Make AJAX request to explain endpoint
-            fetch('/explain', {
+            fetch('https://legal-ease-eight-teal.vercel.app/explain', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
