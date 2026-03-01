@@ -2,13 +2,26 @@ flask
 Flask-SQLAlchemy
 Werkzeug
 gunicorn
-transformers
-torch
+Flask-Login
+Flask-WTF
+Flask-Migrate
+Flask-Limiter
+# transformers  # removed for MVP to reduce size
+# torch         # removed for MVP as not used
 pymupdf
 python-docx
 sumy
-# Optional below - uncomment if used
-# pytesseract
-# Pillow
+numpy  # Required by SUMY's LSA summarizer
+# OCR support (required for camera feature)
+pytesseract
+Pillow
 # PyPDF2
-# psycopg2-binary
+psycopg2-binary
+cryptography
+
+# Networking / HTTP compatibility
+requests>=2.31.0
+urllib3==2.6.3
+
+# Optional production pieces
+redis>=4.5.0

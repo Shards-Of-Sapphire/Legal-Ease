@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: legal-ease
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: starter
+    region: oregon
+    envVars:
+      - key: SESSION_SECRET
+        value: "REPLACE_ME"
+        sync: false
+      - key: DATABASE_URL
+        value: ""
+        sync: false
+    mounts: []
