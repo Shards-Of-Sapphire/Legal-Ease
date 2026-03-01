@@ -1,4 +1,5 @@
 flask
+flask-cors
 Flask-SQLAlchemy
 Werkzeug
 gunicorn
@@ -25,3 +26,4 @@ urllib3==2.6.3
 
 # Optional production pieces
 redis>=4.5.0
+
