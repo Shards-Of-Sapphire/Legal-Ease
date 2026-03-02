@@ -6,7 +6,7 @@
     <title>LegalEase by Sapphire - Legal Document Summarizer</title>
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -26,19 +26,6 @@
             </div>
         </div>
     </nav>
-
-    <div class="container mt-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -143,29 +130,7 @@
             </div>
         </div>
 
-        <!-- Summary Results -->
-        {% if success and summary %}
-        <div class="row justify-content-center mt-4">
-            <div class="col-lg-10">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title mb-0">
-                            <i class="fas fa-file-alt me-2"></i>Document Summary
-                        </h3>
-                        <p class="text-muted mb-0">
-                            File: {{ filename }}
-                            {% if document_id and not is_historical %}
-                                <span class="badge bg-success ms-2">
-                                    <i class="fas fa-save me-1"></i>Saved to Database
-                                </span>
-                            {% endif %}
-                            {% if is_historical %}
-                                <span class="badge bg-info ms-2">
-                                    <i class="fas fa-history me-1"></i>Historical Document
-                                </span>
-                            {% endif %}
-                        </p>
-                    </div>
+    
                     <div class="card-body">
                         <div class="alert alert-success">
                             <h5><i class="fas fa-check-circle me-2"></i>Summary</h5>
@@ -252,7 +217,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="js/script.js"></script>
 </body>
 
 <footer>
