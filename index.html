@@ -134,23 +134,18 @@
                     <div class="card-body">
                         <div class="alert alert-success">
                             <h5><i class="fas fa-check-circle me-2"></i>Summary</h5>
-                            <p class="mb-0">{{ summary }}</p>
+                            <p class="mb-0"></p>
                         </div>
 
-                        {% if key_clauses %}
                         <h5 class="mt-4"><i class="fas fa-key me-2"></i>Key Clauses</h5>
                         <div class="row">
-                            {% for clause in key_clauses %}
                             <div class="col-md-6 mb-3">
                                 <div class="card border-secondary">
                                     <div class="card-body">
                                         <h6 class="card-title text-primary">{{ clause.type }}</h6>
-                                        <p class="card-text small text-muted">{{ clause.content[:200] }}{% if clause.content|length > 200 %}...{% endif %}</p>
-                                        {% if clause.explanation %}
-                                        <p class="card-text">{{ clause.explanation }}</p>
-                                        {% endif %}
+                                        <p class="card-text small text-muted">
+                                        <p class="card-text"></p>
                                         <button class="btn btn-sm btn-outline-primary explain-btn" 
-                                                data-clause="{{ clause.content }}" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#explainModal">
                                             <i class="fas fa-question-circle me-1"></i>Explain This
@@ -158,14 +153,11 @@
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
     </div>
 
     <!-- Explain Modal -->
