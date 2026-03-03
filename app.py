@@ -151,10 +151,16 @@ def home():
 @app.route('/upload', methods=['POST'])
 @login_required
 @limiter.limit("5 per minute")
-def upload_file():
-    """Handle file upload and processing"""
-    start_time = time.time()
-    document_id = None
+def upload():
+    try:
+        file = request.files.get("file")
+        captured_image = request.form.get("captured_image")
+
+        if not file and not captured_image:
+            return jsonify({
+                "success": False,
+                "error": "No file provided"
+            }), 400
     
     try:
         # Check if it's a camera capture or file upload
@@ -297,10 +303,12 @@ def upload_file():
                                  document_id=document_id)
             
         except Exception as e:
-            logging.error(f"Error generating summary: {str(e)}")
-            log_action('summarize', 'error', request.remote_addr, str(e), document_id)
-            flash(f'Error generating summary: {str(e)}', 'error')
-            return redirect(url_for('index'))
+            traceback.print_exc()
+    
+            return jsonify({
+                "success": False,
+                "error": "Server error occurred"
+            }), 500
         
     except RequestEntityTooLarge:
         flash('File too large. Please upload files smaller than 16MB.', 'error')
