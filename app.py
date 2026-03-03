@@ -152,6 +152,8 @@ def home():
 @login_required
 @limiter.limit("5 per minute")
 def upload():
+    start_time = time.time()
+
     try:
         file = request.files.get("file")
         captured_image = request.form.get("captured_image")
@@ -161,111 +163,101 @@ def upload():
                 "success": False,
                 "error": "No file provided"
             }), 400
-    
-    try:
-        # Check if it's a camera capture or file upload
-        captured_image = request.form.get('captured_image')
-        
+
+        # -----------------------------
+        # CAMERA CAPTURE PROCESSING
+        # -----------------------------
         if captured_image:
-            # Process camera capture
-            logging.info("Processing camera capture")
-            
-            # Extract text from image using OCR
             try:
+                logging.info("Processing camera capture")
+
                 extracted_text = utils.extract_text_from_image(captured_image)
+
                 if not extracted_text.strip():
-                    flash('No text could be extracted from the image. Please ensure the document is clear and readable.', 'error')
-                    return redirect(url_for('index'))
-                
-                logging.info(f"Text extracted from image, length: {len(extracted_text)}")
-                
+                    return jsonify({
+                        "success": False,
+                        "error": "No text could be extracted from the image."
+                    }), 400
+
                 filename = "camera_capture.jpg"
                 file_type = "image"
                 file_size = len(captured_image)
-                
+
             except Exception as e:
                 logging.error(f"Error extracting text from image: {str(e)}")
-                # record that the failure occurred on a camera capture
                 log_action('extract_text', 'error', request.remote_addr, str(e), file_name="camera_capture.jpg")
-                flash(f'Error extracting text from image: {str(e)}', 'error')
-                return redirect(url_for('index'))
+
+                return jsonify({
+                    "success": False,
+                    "error": f"Error extracting text from image: {str(e)}"
+                }), 500
+
+        # -----------------------------
+        # FILE UPLOAD PROCESSING
+        # -----------------------------
         else:
-            # Process file upload
-            if 'file' not in request.files:
-                flash('No file selected', 'error')
-                return redirect(url_for('index'))
-            
-            file = request.files['file']
-            
-            # Check if file was actually selected
-            if file.filename == '':
-                flash('No file selected', 'error')
-                return redirect(url_for('index'))
-            
-            # Check file type
+            if not file or file.filename == '':
+                return jsonify({
+                    "success": False,
+                    "error": "No file selected"
+                }), 400
+
             if not allowed_file(file.filename):
-                flash('File type not supported. Please upload PDF, DOCX, or TXT files only.', 'error')
-                return redirect(url_for('index'))
-            
-            # Save file temporarily with unique name to avoid collisions
+                return jsonify({
+                    "success": False,
+                    "error": "File type not supported. Upload PDF, DOCX, or TXT."
+                }), 400
+
             filename = secure_filename(file.filename)
             unique_name = f"{int(time.time())}_{os.urandom(8).hex()}_{filename}"
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_name)
-            file.save(filepath)
-            
-            # Get file info
-            file_size = os.path.getsize(filepath)
-            file_type = filename.rsplit('.', 1)[1].lower()
-            
-            logging.info(f"File uploaded: {filename}")
-            
-            # Log upload
-            log_action('upload', 'success', request.remote_addr, file_name=filename)
-            
-            # Extract text from file
+
             try:
+                file.save(filepath)
+
+                file_size = os.path.getsize(filepath)
+                file_type = filename.rsplit('.', 1)[1].lower()
+
+                log_action('upload', 'success', request.remote_addr, file_name=filename)
+
                 extracted_text = utils.extract_text_from_file(filepath)
+
                 if not extracted_text.strip():
-                    flash('No text could be extracted from the file. Please check if the file contains readable text.', 'error')
-                    return redirect(url_for('index'))
-                
-                logging.info(f"Text extracted, length: {len(extracted_text)}")
-                
+                    return jsonify({
+                        "success": False,
+                        "error": "No readable text found in file."
+                    }), 400
+
             except Exception as e:
                 logging.error(f"Error extracting text: {str(e)}")
                 log_action('extract_text', 'error', request.remote_addr, str(e), file_name=filename)
-                flash(f'Error extracting text from file: {str(e)}', 'error')
-                return redirect(url_for('index'))
+
+                return jsonify({
+                    "success": False,
+                    "error": f"Error extracting text from file: {str(e)}"
+                }), 500
+
             finally:
-                # always remove temporary file if it exists
-                try:
-                    if os.path.exists(filepath):
-                        os.remove(filepath)
-                except Exception:
-                    pass
-        
-        # Generate summary using AI
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+
+        # -----------------------------
+        # AI SUMMARY GENERATION
+        # -----------------------------
         try:
             summary_data = utils.summarize_legal_document(extracted_text)
-            logging.info("Summary generated successfully")
-            
-            # Calculate processing time
             processing_time = time.time() - start_time
-            
-            # Save to database
-            # determine how to store original text based on config
+
+            # Encrypt or purge original text
             if app.config.get('ENCRYPT_ORIGINAL_TEXT'):
-                # encrypt using Fernet
                 from cryptography.fernet import Fernet
                 key = app.config.get('ORIGINAL_TEXT_KEY')
-                if not key:
-                    raise RuntimeError("ENCRYPT_ORIGINAL_TEXT is true but ORIGINAL_TEXT_KEY is not set")
                 cipher = Fernet(key.encode() if isinstance(key, str) else key)
                 stored_text = cipher.encrypt(extracted_text.encode()).decode()
             else:
-                # purge original text to minimize risk
                 stored_text = None
 
+            # Save document
             document = Document(
                 user_id=current_user.id,
                 filename=filename,
@@ -275,12 +267,13 @@ def upload():
                 summary=summary_data['summary'],
                 processing_time=processing_time
             )
-            
+
             db.session.add(document)
             db.session.commit()
             document_id = document.id
-            
-            # Save key clauses
+
+            # Save clauses
+            clauses_response = []
             for clause_data in summary_data.get('key_clauses', []):
                 clause = KeyClause(
                     document_id=document_id,
@@ -289,35 +282,49 @@ def upload():
                     explanation=clause_data.get('explanation', '')
                 )
                 db.session.add(clause)
-            
+
+                clauses_response.append({
+                    "type": clause_data['type'],
+                    "content": clause_data['content'],
+                    "explanation": clause_data.get('explanation', '')
+                })
+
             db.session.commit()
-            
-            # Log successful processing
+
             log_action('summarize', 'success', request.remote_addr, document_id=document_id)
-            
-            return render_template('index.html', 
-                                 filename=filename,
-                                 summary=summary_data['summary'],
-                                 key_clauses=summary_data.get('key_clauses', []),
-                                 success=True,
-                                 document_id=document_id)
-            
+
+            # -----------------------------
+            # FINAL JSON RESPONSE
+            # -----------------------------
+            return jsonify({
+                "success": True,
+                "document_id": document_id,
+                "filename": filename,
+                "summary": summary_data['summary'],
+                "key_clauses": clauses_response,
+                "processing_time": processing_time
+            })
+
         except Exception as e:
             traceback.print_exc()
-    
             return jsonify({
                 "success": False,
-                "error": "Server error occurred"
+                "error": "Error generating summary"
             }), 500
-        
+
     except RequestEntityTooLarge:
-        flash('File too large. Please upload files smaller than 16MB.', 'error')
-        return redirect(url_for('index'))
+        return jsonify({
+            "success": False,
+            "error": "File too large. Max size 16MB."
+        }), 413
+
     except Exception as e:
         logging.error(f"Unexpected error: {str(e)}")
-        log_action('upload', 'error', request.remote_addr, str(e), file_name=filename if 'filename' in locals() else None)
-        flash(f'An unexpected error occurred: {str(e)}', 'error')
-        return redirect(url_for('index'))
+        return jsonify({
+            "success": False,
+            "error": f"Unexpected server error: {str(e)}"
+        }), 500
+
 
 @app.route('/explain', methods=['POST'])
 @login_required
