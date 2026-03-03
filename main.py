@@ -29,8 +29,8 @@ def upload():
         key_clauses = [
             {
                 "type": "Confidentiality",
-                "content": "Clause text here",
-                "explanation": "This clause means..."
+                "content": "This agreement prohibits sharing confidential information.",
+                "explanation": "You are legally required not to disclose private data."
             }
         ]
 
