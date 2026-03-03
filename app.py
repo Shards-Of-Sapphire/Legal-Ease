@@ -333,20 +333,25 @@ def explain_clause():
         log_action('explain', 'error', request.remote_addr, str(e))
         return jsonify({'error': f'Error explaining clause: {str(e)}'}), 500
 
-@app.route('/history')
+@app.route("/api/history")
 @login_required
-def document_history():
-    """View document processing history"""
-    try:
-        # Get recent documents with pagination
-        page = request.args.get('page', 1, type=int)
-        per_page = 10
-        
-        documents = Document.query.filter_by(user_id=current_user.id).order_by(Document.upload_date.desc()).paginate(
-            page=page, per_page=per_page, error_out=False
-        )
-        
-        return render_template('history.html', documents=documents)
+def api_history():
+    documents = get_documents_from_db()
+    documents = [
+    {
+        "filename": doc.filename,
+        "file_type": doc.file_type,
+        "file_size": doc.file_size,
+        "upload_date": doc.upload_date.strftime("%Y-%m-%d %H:%M"),
+        "processing_time": doc.processing_time
+    }
+    for doc in documents_from_db
+]
+    
+    return jsonify({
+        "success": True,
+        "documents": documents
+    })
         
     except Exception as e:
         logging.error(f"Error fetching document history: {str(e)}")
