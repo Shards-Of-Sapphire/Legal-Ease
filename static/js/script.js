@@ -21,6 +21,7 @@ form.addEventListener("submit", async (e) => {
         const response = await fetch("https://legal-ease-eight-teal.vercel.app/upload", {
             method: "POST",
             body: formData
+            credentials: "include"
         });
 
         const data = await response.json();
