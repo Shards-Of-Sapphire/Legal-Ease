@@ -7,11 +7,15 @@ form.addEventListener("submit", async (e) => {
     const formData = new FormData(form);
 
     resultsDiv.innerHTML = `
-        <div class="text-center mt-4">
-            <div class="spinner-border text-primary"></div>
-            <p class="mt-2">Analyzing document...</p>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h3>Summary</h3>
+            <div class="alert alert-success">
+                ${data.summary}
+            </div>
         </div>
-    `;
+    </div>
+`;
 
     try {
         const response = await fetch("https://legal-ease-eight-teal.vercel.app/upload", {
@@ -41,13 +45,10 @@ function renderResults(data) {
             <h4 class="mt-4">Key Clauses</h4>
             <div class="row">
                 ${data.key_clauses.map(clause => `
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-secondary">
-                            <div class="card-body">
-                                <h6 class="text-primary">${clause.type}</h6>
-                                <p class="small text-muted">${clause.content.substring(0, 200)}...</p>
-                                <p>${clause.explanation}</p>
-                            </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>${clause.type}</h6>
+                            <p>${clause.content}</p>
                         </div>
                     </div>
                 `).join("")}
