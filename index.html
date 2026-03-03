@@ -17,10 +17,10 @@
                 <small class="text-light opacity-75 ms-2">by Sapphire</small>
             </a>
             <div class="navbar-nav">
-                <a class="nav-link active" href="{{ url_for('index') }}">
+                <a class="nav-link active" href="index.html">
                     <i class="fas fa-upload me-1"></i>Upload Document
                 </a>
-                <a class="nav-link" href="{{ url_for('document_history') }}">
+                <a class="nav-link" href="history.html">
                     <i class="fas fa-history me-1"></i>History
                 </a>
             </div>
@@ -41,7 +41,7 @@
                             </p>
                         </div>
 
-                        <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+                        <form id="uploadForm" enctype="multipart/form-data">
                             <div class="mb-4">
                                 <label for="file" class="form-label">Select Document or Take Photo</label>
                                 
@@ -221,9 +221,9 @@
 </body>
 
 <footer>
-  <a href="/terms">Terms of Service</a> |
-  <a href="/privacy">Privacy Policy</a> |
-  <a href="/disclaimer">Disclaimer</a>
+  <a href="terms.html">Terms of Service</a> |
+  <a href="privacy.html">Privacy Policy</a> |
+  <a href="disclaimer.html">Disclaimer</a>
 </footer>
 
 </html>
