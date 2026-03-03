@@ -67,3 +67,7 @@ function renderResults(data) {
         </div>
     `;
 }
+window.scrollTo({
+    top: resultsDiv.offsetTop,
+    behavior: "smooth"
+});
