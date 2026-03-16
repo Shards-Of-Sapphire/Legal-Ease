@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 from sqlalchemy.orm import DeclarativeBase
 import utils
+import traceback
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -351,27 +352,33 @@ def explain_clause():
 @app.route("/api/history")
 @login_required
 def api_history():
-    documents = get_documents_from_db()
-    documents = [
-    {
-        "filename": doc.filename,
-        "file_type": doc.file_type,
-        "file_size": doc.file_size,
-        "upload_date": doc.upload_date.strftime("%Y-%m-%d %H:%M"),
-        "processing_time": doc.processing_time
-    }
-    for doc in documents_from_db
-]
-    
-    return jsonify({
-        "success": True,
-        "documents": documents
-    })
-        
+    try:
+        documents_from_db = Document.query.filter_by(
+            user_id=current_user.id
+        ).order_by(Document.upload_date.desc()).all()
+
+        documents = [
+            {
+                "filename": doc.filename,
+                "file_type": doc.file_type,
+                "file_size": doc.file_size,
+                "upload_date": doc.upload_date.strftime("%Y-%m-%d %H:%M"),
+                "processing_time": doc.processing_time
+            }
+            for doc in documents_from_db
+        ]
+
+        return jsonify({
+            "success": True,
+            "documents": documents
+        })
+
     except Exception as e:
         logging.error(f"Error fetching document history: {str(e)}")
-        flash(f'Error loading document history: {str(e)}', 'error')
-        return redirect(url_for('index'))
+        return jsonify({
+            "success": False,
+            "error": "Failed to load document history"
+        }), 500
 
 @app.route('/document/<int:document_id>')
 @login_required
